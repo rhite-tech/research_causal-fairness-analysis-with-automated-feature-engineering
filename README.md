@@ -1,7 +1,13 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# [faircause](https://github.com/dplecko/CFA)
+# Causal Fairness Analysis with Automated Feature Engineering
+
+This repository corresponds to the Master's thesis in Artificial Intelligence by Wietse van Kooten, at University of Amsterdam, 2024. This research is part of a project on Bias Identification methods initiated by Rhite and has been guided and supervised by Rhite and the University of Amsterdam.
+
+The research introduces causality-driven approaches to improve bias mitigation, exploring how causal factors, rather than correlations, can better address bias in fields like law enforcement and healthcare
+
+## [faircause](https://github.com/dplecko/CFA)
 
 <!-- badges: start 
 [![Lifecycle](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
