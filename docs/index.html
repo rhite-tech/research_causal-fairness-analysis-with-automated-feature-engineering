@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.450">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>CFA Software - Causal Fairness Analysis - Software Tools</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">CFA Software</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link active" href="./index.html" rel="" target="" aria-current="page">
+ <span class="menu-text">Home</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-task-1" role="button" data-bs-toggle="dropdown" aria-expanded="false" rel="" target="">
+ <span class="menu-text">Task 1</span>
+    </a>
+    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="nav-menu-task-1">    
+        <li>
+    <a class="dropdown-item" href="./pages/t1-census.html" rel="" target="">
+ <span class="dropdown-text">Census T1</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./pages/t1-admissions-over-time.html" rel="" target="">
+ <span class="dropdown-text">Admissions T1 Over Time</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./pages/t1-compas-y-yhat.html" rel="" target="">
+ <span class="dropdown-text">COMPAS T1</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./pages/t1-compas-beyond-sfm.html" rel="" target="">
+ <span class="dropdown-text">COMPAS T1 (Beyond SFM)</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./pages/t1-icu-mortality.html" rel="" target="">
+ <span class="dropdown-text">MIMIC-IV T1 Mortality Disparities</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-task-2" role="button" data-bs-toggle="dropdown" aria-expanded="false" rel="" target="">
+ <span class="menu-text">Task 2</span>
+    </a>
+    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="nav-menu-task-2">    
+        <li>
+    <a class="dropdown-item" href="./pages/t2-compas-fpt-inthe-wild.html" rel="" target="">
+ <span class="dropdown-text">COMPAS T2 - FPT in the Wild</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./pages/t2-compas-neural-inproc.html" rel="" target="">
+ <span class="dropdown-text">COMPAS T2 - Neural In-Processing</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-task-3" role="button" data-bs-toggle="dropdown" aria-expanded="false" rel="" target="">
+ <span class="menu-text">Task 3</span>
+    </a>
+    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="nav-menu-task-3">    
+        <li>
+    <a class="dropdown-item" href="./pages/t3-mimic-respirators.html" rel="" target="">
+ <span class="dropdown-text">MIMIC-IV Respirators</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./pages/t3-surgeries.html" rel="" target="">
+ <span class="dropdown-text">Surgeries T3</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-other-examples" role="button" data-bs-toggle="dropdown" aria-expanded="false" rel="" target="">
+ <span class="menu-text">Other Examples</span>
+    </a>
+    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="nav-menu-other-examples">    
+        <li>
+    <a class="dropdown-item" href="./pages/python-use.html" rel="" target="">
+ <span class="dropdown-text">Using Python</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./pages/ci-tests.html" rel="" target="">
+ <span class="dropdown-text">Cond. Independence Tests</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+            <div class="quarto-navbar-tools">
+</div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#want-to-learn-more-about-causal-fairness-analysis" id="toc-want-to-learn-more-about-causal-fairness-analysis" class="nav-link active" data-scroll-target="#want-to-learn-more-about-causal-fairness-analysis">Want to learn more about Causal Fairness Analysis?</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Causal Fairness Analysis - Software Tools</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<p>This page contains a sequence of vignettes associated with the <a href="https://causalai.net/r90.pdf">Causal Fairness Analysis</a> paper <span class="citation" data-cites="plecko2022causal">(<a href="#ref-plecko2022causal" role="doc-biblioref">Plečko and Bareinboim 2024</a>)</span>. In particular, here you can find all the code used to reproduce the results of the paper, formatted in a vignette-style fashion. There are also additional examples of analyses, which are not presented in the manuscript. In particular, you can find the following examples, grouped by different tasks (bias detection, fair prediction, fair decision-making):</p>
+
+<style>
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    border: 1px solid #ddd;
+  }
+  th, td {
+    text-align: center;
+    padding: 8px;
+    border-right: 1px solid #ddd; /* Add vertical lines */
+  }
+  th:last-child, td:last-child {
+    border-right: none; /* Remove right border for the last column */
+  }
+  tr:nth-child(even) {
+    background-color: #f2f2f2;
+  }
+  th {
+    background-color: #4CAF50;
+    color: white;
+  }
+</style>
+<table>
+<tbody><tr>
+<th>
+Task
+</th>
+<th>
+Dataset
+</th>
+<th>
+Vignette Name
+</th>
+<th>
+Manuscript Reference
+</th>
+</tr>
+<tr>
+<td>
+Task 1
+</td>
+<td>
+Census 2018
+</td>
+<td>
+<a href="./pages/t1-census.html">Census Bias Detection</a>
+</td>
+<td>
+Example 5.1, Section 5.1
+</td>
+</tr>
+<tr>
+<td>
+Task 1
+</td>
+<td>
+College Admissions
+</td>
+<td>
+<a href="./pages/t1-admissions-over-time.html">Admissions Over Time</a>
+</td>
+<td>
+Example 5.2, Section 5.1
+</td>
+</tr>
+<tr>
+<td>
+Task 1
+</td>
+<td>
+COMPAS
+</td>
+<td>
+<a href="./pages/t1-compas-y-yhat.html">True Outcome vs.&nbsp;Northpointe’s Predictions</a>
+</td>
+<td>
+Example 5.3, Section 5.1
+</td>
+</tr>
+<tr>
+<td>
+Task 1
+</td>
+<td>
+COMPAS
+</td>
+<td>
+<a href="./pages/t1-compas-beyond-sfm.html">Task 1 Beyond the SFM</a>
+</td>
+<td>
+Example 6.1, Section 6
+</td>
+</tr>
+<tr>
+<td>
+Task 1
+</td>
+<td>
+MIMIC-IV
+</td>
+<td>
+<a href="./pages/t1-icu-mortality.html">Mortality after ICU admission</a>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+Task 2
+</td>
+<td>
+COMPAS
+</td>
+<td>
+<a href="./pages/t2-compas-fpt-inthe-wild.html">Fair Prediction Theorem in the Wild</a>
+</td>
+<td>
+Example 5.4, Section 5.2
+</td>
+</tr>
+<tr>
+<td>
+Task 2
+</td>
+<td>
+COMPAS
+</td>
+<td>
+<a href="./pages/t2-compas-neural-inproc.html">Neural In-Processing</a>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+Task 3
+</td>
+<td>
+MIMIC-IV
+</td>
+<td>
+<a href="./pages/t3-mimic-respirators.html">Respirators in the ICU</a>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+Task 3
+</td>
+<td>
+Surgeries (Synthetic)
+</td>
+<td>
+<a href="./pages/t3-surgeries.html">Cancer Surgery Allocation</a>
+</td>
+<td>
+Section 5.3.3
+</td>
+</tr>
+<tr>
+<td>
+Other
+</td>
+<td>
+Adult / COMPAS
+</td>
+<td>
+<a href="./pages/ci-tests.html">Conditional independence tests</a>
+</td>
+<td>
+Figure 4.7, Section 4.5
+</td>
+</tr>
+<tr>
+<td>
+Other
+</td>
+<td>
+COMPAS
+</td>
+<td>
+<a href="./pages/python-use.html">Using CFA from python</a>
+</td>
+<td>
+</td>
+</tr>
+
+</tbody></table>
+<!-- #### Task 1: Bias Detection and Quantification -->
+<!-- 1.  [Census dataset analysis](pages/t1-census.Rmd) from Example 5.1 of [@plecko2022causal, Section 5.1], -->
+<!-- 1.  [College Admissions Bias Quantification over Time](pages/t1-admissions-over-time.Rmd) from Example 5.2 of [@plecko2022causal, Section 5.1], -->
+<!-- 1.  [COMPAS dataset -- True Outcome vs. Northpointe's Predictions](pages/t1-compas-y-yhat.Rmd) from Example 5.2 of [@plecko2022causal, Section 5.1], -->
+<!-- 1. [COMPAS dataset -- beyond the SFM](pages/t1-compas-beyond-sfm.Rmd) from Example 6.1 of [@plecko2022causal, Section 6], -->
+<!-- 1. [MIMIC-IV -- Mortality disparities after ICU admission](pages/t1-icu-mortality.Rmd). -->
+<!-- #### Task 2: Fair Prediction -->
+<!-- 1.  [COMPAS dataset -- Fair Prediction Theorem in the Wild](pages/t2-compas-fpt-inthe-wild.Rmd) from Example 5.3 of [@plecko2022causal, Section 5.2], -->
+<!-- 1.  [COMPAS dataset -- Neural In-Processing](pages/t2-compas-neural-inproc.Rmd) for producing causally fair predictions. -->
+<!-- #### Task 3: Fair Decision-Making -->
+<!-- 1. [MIMIC-IV -- Allocation of Respirators in the ICU](pages/t3-mimic-respirators.Rmd), -->
+<!-- 1. [Cancer Surgeries (Synthetic) -- Outcome Control](pages/t3-surgeries.qmd) from [@plecko2022causal, Section 5.3.3].  -->
+<!-- #### Other Tasks -->
+<!-- 1.  [Conditional independence tests on COMPAS & Census datasets](pages/ci-tests.Rmd) from Figure 4.7 of [@plecko2022causal, Section 4.5], -->
+<!-- 1. [Using CFA from python](pages/python-use.qmd). -->
+<section id="want-to-learn-more-about-causal-fairness-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="want-to-learn-more-about-causal-fairness-analysis">Want to learn more about Causal Fairness Analysis?</h2>
+<p>For those interested in learning more about CFA, we suggest the following resources:</p>
+<ol style="list-style-type: lower-roman; counter-reset: list;">
+<li>
+Reading the Causal Fairness Analysis paper, found <a href="https://causalai.net/r90.pdf">here</a>,
+</li>
+<li>
+Follow the series of <a href="https://www.cs.columbia.edu/~dplecko/#teaching">lectures on CFA</a> which were part of the COMSW-4775 course at Columbia Computer Science,
+</li>
+<li>
+Check our <a href="https://fairness.causalai.net/">ICML 2022 Tutorial</a>.
+</li>
+<li>
+Check the vignettes on this webpage which demonstrate how to perform Causal Fairness Analysis in practice.
+</li>
+</ol>
+
+
+
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-plecko2022causal" class="csl-entry" role="listitem">
+Plečko, Drago, and Elias Bareinboim. 2024. <span>“Causal Fairness Analysis: A Causal Toolkit for Fair Machine Learning.”</span> <em>Foundations and Trends<span></span> in Machine Learning</em> 17 (3): 304–589.
+</div>
+</div></section></div></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

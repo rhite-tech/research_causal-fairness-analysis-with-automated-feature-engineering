@@ -1,0 +1,280 @@
+---
+title: "Task 2: Fair Predictions on COMPAS"
+output: html_document
+bibliography: ../bib/CFA.bib
+biblio-style: unsrt
+jupyter: python3
+---
+
+```{r setup, include=FALSE, message=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+root <- rprojroot::find_root(rprojroot::is_git_root)
+r_dir <- file.path(root, "r")
+invisible(lapply(list.files(file.path(root, "scripts", "helpers"),
+                            full.names = TRUE), source))
+dataset <- "compas"
+library(fairadapt)
+library(faircause)
+library(reticulate)
+library(ranger)
+library(ggplot2)
+library(latex2exp)
+
+RejectOption <- function(prob, cl) {
+
+  rate_cl <- tapply(prob, cl, function(x) mean(x > 0.5))
+  fav_cl <- names(rate_cl)[which.max(rate_cl)]
+
+  theta <- 0.5 + seq(0, 0.5, 0.005)
+  tv <- vapply(
+    theta,
+    function(th) {
+      mean(prob[cl == fav_cl] > th) - mean(prob[cl != fav_cl] > 1 - th)
+    }, numeric(1L)
+  )
+
+  theta_min <- theta[which.min(abs(tv))]
+
+  prob[cl == fav_cl] <- prob[cl == fav_cl] > theta_min
+  prob[cl != fav_cl] <- prob[cl != fav_cl] > 1 - theta_min
+
+  prob
+
+}
+
+
+get_mat <- function(src = "compas") {
+  
+  mat <- switch(src, adult = get_mat_adult(),
+                compas = get_mat_compas(),
+                census = get_mat_census(),
+                berkeley = get_mat_berkeley())
+  
+  mat
+  
+}
+
+get_mat_compas <- function() {
+  
+  
+  vars <- c("age", "sex", "juv_fel_count","juv_misd_count",
+            "juv_other_count", "priors_count",
+            "c_charge_degree", "race", "two_year_recid")
+  
+  adj.mat <- array(0, dim = c(length(vars), length(vars)))
+  colnames(adj.mat) <- vars
+  rownames(adj.mat) <- colnames(adj.mat)
+  
+  # adding the edges to the matrix
+  adj.mat[
+    c("race", "sex", "age"), c("juv_fel_count", "juv_misd_count",
+                               "juv_other_count", "priors_count",
+                               "c_charge_degree", "two_year_recid")] <- 1
+  adj.mat[c("juv_fel_count", "juv_misd_count", "juv_other_count"),
+          c("priors_count", "c_charge_degree", "two_year_recid")] <- 1
+  adj.mat["priors_count", c("c_charge_degree", "two_year_recid")] <- 1
+  adj.mat["c_charge_degree", "two_year_recid"] <- 1
+  
+  cfd.mat <- adj.mat
+  cfd.mat[, ] <- 0L
+  cfd.mat[c("sex", "age"), "race"] <- cfd.mat["race", c("sex", "age")] <- 1L
+  
+  list(adj.mat, cfd.mat)
+  
+}
+
+set.seed(2024)
+```
+
+In this vignette, we focus on Task 2 (Fair Prediction), and specifically focus on the limitation of the currently found methods in the literature to provide causally meaningful fair predictions. 
+
+## Fair Predictions on COMPAS
+
+A team of data scientists from ProPublica have shown that the COMPAS dataset from Broward County contains a strong racial bias against minorities. They are now interested in producing fair predictions $\widehat{Y}$ on the dataset, to replace the biased predictions. They first load the COMPAS data:
+```{r}
+# load the data
+dat <- get(data("compas", package = "faircause"))
+knitr::kable(head(dat), caption = "COMPAS dataset.")
+
+# load the SFM projection
+mdat <- SFM_proj("compas")
+```
+To produce fair predictions, they first experiment with four different classifiers.
+
+#### **(i)** Random Forest without fairness constraints
+
+```{r}
+# Method 1: Random Forest
+org_dat <- dat
+org_dat$two_year_recid <- ranger(two_year_recid ~ ., dat,
+                                 classification = TRUE)$predictions
+
+# Method 1: decompose Total Variation
+org_tvd <- fairness_cookbook(org_dat, mdat[["X"]], mdat[["Z"]], mdat[["W"]],
+                             mdat[["Y"]], mdat[["x0"]], mdat[["x1"]])
+org_plt <- autoplot(org_tvd, decompose = "xspec", dataaset = dataset) +
+  xlab("") + ylab("")
+```
+
+#### **(ii)** Logistic regression trained with _reweighing_ [@kamiran2012data]
+
+```{python, message=FALSE}
+#| warning: false
+#| message: false
+import os
+
+exec(open(os.path.join(r.root, "py", "reweighing_compas.py")).read())
+Yhat_rew = reweigh_and_predict(r.dat, r.dat)
+```
+
+```{r}
+# Method 2: Reweighing by Kamiran & Calders
+reweigh_dat <- dat
+reweigh_dat$two_year_recid <- as.vector(py$Yhat_rew)
+
+reweigh_tvd <- fairness_cookbook(
+  reweigh_dat, mdat[["X"]], mdat[["Z"]], mdat[["W"]], mdat[["Y"]], mdat[["x0"]],
+  mdat[["x1"]])
+
+rew_plt <- autoplot(reweigh_tvd, decompose = "xspec", dataset = dataset) +
+  xlab("") + ylab("")
+```
+
+#### **(iii)** Fair Reductions approach of [@agarwal2018reductions]
+
+```{python}
+exec(open(os.path.join(r.root, "py", "reductions_compas.py")).read())
+Yhat_red = reduce_and_predict(r.dat, r.dat, 0.01)
+```
+
+
+```{r}
+# Method 3: Reductions (Agarwal et. al.)
+source_python(file.path(root, "py", paste0("reductions_", dataset, ".py")))
+
+red_dat <- dat
+red_dat$two_year_recid <- as.vector(py$Yhat_red)
+red_tvd <- fairness_cookbook(
+  red_dat, mdat[["X"]], mdat[["W"]], mdat[["Z"]], mdat[["Y"]], mdat[["x0"]],
+  mdat[["x1"]]
+)
+
+red_plt <- autoplot(red_tvd, decompose = "xspec", dataset = dataset) +
+  xlab("") + ylab("")
+```
+
+#### **(iv)** Random Forest with _reject-option_ post-processing [@kamiran2012decision]
+
+```{r}
+# Method 4: reject-option classification
+rjo_prb <- ranger(two_year_recid ~ ., dat, probability = TRUE)$predictions[, 2]
+rjo_dat <- dat
+rjo_dat$two_year_recid <- RejectOption(rjo_prb, rjo_dat$race)
+
+rjo_tvd <- fairness_cookbook(rjo_dat, mdat[["X"]], mdat[["W"]], mdat[["Z"]],
+                             mdat[["Y"]], mdat[["x0"]], mdat[["x1"]])
+rjo_plt <- autoplot(rjo_tvd, decompose = "xspec", dataset = dataset) +
+  xlab("") + ylab("")
+```
+
+### Are the methods successful at eliminating discrimination?
+
+The fair prediction algorithms used above are intended to set the TV measure to $0$. After constructing these predictors, the ProPublica team made use of the Fairness Cookbook, to inspect the causal implications of the methods. Following the steps of the Fairness Cookbook, the team computes the TV measure, together with the appropriate measures of direct, indirect, and spurious discrimination. We can now visualize these decompositions in @fig-compas-fairpred.
+
+```{r}
+#| label: fig-compas-fairpred
+#| fig-cap: Fair Predictions on the COMPAS dataset.
+#| fig-width: 18
+#| fig-height: 12
+#| echo: false
+multi_plot <- function(..., labels = NULL, ncol = 1L) {
+
+  plotlist <- list(...)
+  y_range <- lapply(plotlist, function(obj) layer_scales(obj)$y$range$range)
+  y_range <- Reduce(rbind, y_range)
+  ylims <- c(min(y_range[, 1]), max(y_range[, 2]))
+
+  plotlist <- lapply(plotlist, function(obj) obj + ylim(ylims))
+
+  cowplot::plot_grid(plotlist = plotlist, labels = labels, ncol = ncol,
+                     label_size = 20)
+
+}
+multi_plot(
+  org_plt +
+    ggtitle(TeX("Random Forest")),
+  rew_plt +
+    ggtitle(TeX("Reweighing")),
+  red_plt +
+    ggtitle(TeX("Reductions")),
+  rjo_plt +
+    ggtitle(TeX("Reject-Option")),
+  labels = c("(i)", "(ii)", "(iii)", "(iv)"), ncol = 2L
+)
+```
+
+The ProPublica team notes that all methods substantially reduce the $\text{TV}_{x_0,x_1}(\widehat{y})$, however, the measures of direct, indirect, and, spurious effects are not necessarily reduced to $0$, consistent with the Fair Prediction Theorem. 
+
+## How to fix the issue?
+
+To produce causally meaningful fair predictions, we suggest using the `fairadapt` package [@plevcko2020fair; @plevcko2021fairadapt]. In particular, the package offers a way of removing discrimination which is based on the causal diagram. In this application, we are interested in constructing fair predictions that remove both the direct and the indirect effect. Firstly, we obtain the adjacency matrix representing the causal diagram associated with the COMPAS dataset:
+
+```{r}
+set.seed(2022)
+# load the causal diagram
+mats <- get_mat(dataset)
+adj.mat <- mats[[1L]]
+cfd.mat <- mats[[2L]]
+
+causal_graph <- fairadapt::graphModel(adj.mat, cfd.mat)
+layout_matrix <- matrix(c(
+  1, 2,  # age
+  -1, 2,  # sex
+  -2, -2,  # juv_fel_count
+  -1, -2, # juv_misd_count
+  0, -2, # juv_other_count
+  1, -2,  # priors_count
+  2, -2,  # c_charge_degree
+  -3, 0,  # race
+  3, 0    # two_year_recid
+), ncol = 2, byrow = TRUE)
+
+plot(causal_graph, layout=layout_matrix, vertex.size = 30)
+```
+
+After loading the causal diagram, we perform fair data adaptation:
+
+```{r}
+#| label: fig-compas-fairadapt
+#| fig-cap: Fair Data Adaptation on the COMPAS dataset.
+#| fig-width: 8
+#| fig-height: 6
+fdp <- fairadapt::fairadapt(two_year_recid ~ ., prot.attr = "race",
+                            train.data = dat, adj.mat = adj.mat)
+
+# obtain the adapted data
+ad_dat <- fairadapt:::adaptedData(fdp)
+ad_dat$race <- dat$race
+
+# obtain predictions based on the adapted data
+adapt_oob <- ranger(two_year_recid ~ ., ad_dat,
+                    classification = TRUE)$predictions
+ad_dat$two_year_recid <- adapt_oob
+
+# decompose the TV for the predictions
+dat.fairadapt <- dat
+dat.fairadapt$two_year_recid <- adapt_oob
+
+fairadapt_tvd <- fairness_cookbook(
+  ad_dat, mdat[["X"]], mdat[["W"]], mdat[["Z"]],
+  mdat[["Y"]], mdat[["x0"]], mdat[["x1"]]
+)
+
+# visualize the decomposition
+fairadapt_plt <- autoplot(fairadapt_tvd, decompose = "xspec", dataset = dataset) +
+  xlab("") + ylab("")
+
+fairadapt_plt
+```
+
+@fig-compas-fairadapt shows how the `fairadapt` package can be used to provide causally meaningful predictions that remove both direct and indirect effects.

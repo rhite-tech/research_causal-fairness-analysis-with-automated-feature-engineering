@@ -1,0 +1,14 @@
+paper
+US-Census*
+misc
+*.pdf
+.DS_Store
+.Rhistory
+.Rproj.user
+.Rprofile
+.Rapp.history
+.idea
+raw-data
+inst/doc
+inst/shinyapp
+*_cache

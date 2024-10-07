@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.450">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="dcterms.date" content="2024-02-16">
+
+<title>CFA Software - Task 3: Respirator Allocation on MIMIC-IV</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<link rel="stylesheet" href="../styles.css">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">CFA Software</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html" rel="" target="">
+ <span class="menu-text">Home</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-task-1" role="button" data-bs-toggle="dropdown" aria-expanded="false" rel="" target="">
+ <span class="menu-text">Task 1</span>
+    </a>
+    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="nav-menu-task-1">    
+        <li>
+    <a class="dropdown-item" href="../pages/t1-census.html" rel="" target="">
+ <span class="dropdown-text">Census T1</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../pages/t1-admissions-over-time.html" rel="" target="">
+ <span class="dropdown-text">Admissions T1 Over Time</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../pages/t1-compas-y-yhat.html" rel="" target="">
+ <span class="dropdown-text">COMPAS T1</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../pages/t1-compas-beyond-sfm.html" rel="" target="">
+ <span class="dropdown-text">COMPAS T1 (Beyond SFM)</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../pages/t1-icu-mortality.html" rel="" target="">
+ <span class="dropdown-text">MIMIC-IV T1 Mortality Disparities</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-task-2" role="button" data-bs-toggle="dropdown" aria-expanded="false" rel="" target="">
+ <span class="menu-text">Task 2</span>
+    </a>
+    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="nav-menu-task-2">    
+        <li>
+    <a class="dropdown-item" href="../pages/t2-compas-fpt-inthe-wild.html" rel="" target="">
+ <span class="dropdown-text">COMPAS T2 - FPT in the Wild</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../pages/t2-compas-neural-inproc.html" rel="" target="">
+ <span class="dropdown-text">COMPAS T2 - Neural In-Processing</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-task-3" role="button" data-bs-toggle="dropdown" aria-expanded="false" rel="" target="">
+ <span class="menu-text">Task 3</span>
+    </a>
+    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="nav-menu-task-3">    
+        <li>
+    <a class="dropdown-item" href="../pages/t3-mimic-respirators.html" rel="" target="">
+ <span class="dropdown-text">MIMIC-IV Respirators</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../pages/t3-surgeries.html" rel="" target="">
+ <span class="dropdown-text">Surgeries T3</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-other-examples" role="button" data-bs-toggle="dropdown" aria-expanded="false" rel="" target="">
+ <span class="menu-text">Other Examples</span>
+    </a>
+    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="nav-menu-other-examples">    
+        <li>
+    <a class="dropdown-item" href="../pages/python-use.html" rel="" target="">
+ <span class="dropdown-text">Using Python</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../pages/ci-tests.html" rel="" target="">
+ <span class="dropdown-text">Cond. Independence Tests</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+            <div class="quarto-navbar-tools">
+</div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#inspecting-the-respiration-data-from-mimic-iv-dataset" id="toc-inspecting-the-respiration-data-from-mimic-iv-dataset" class="nav-link active" data-scroll-target="#inspecting-the-respiration-data-from-mimic-iv-dataset">Inspecting the Respiration Data from MIMIC-IV dataset</a></li>
+  <li><a href="#constructing-the-sfm" id="toc-constructing-the-sfm" class="nav-link" data-scroll-target="#constructing-the-sfm">Constructing the SFM</a></li>
+  <li><a href="#obtaining-fair-decisions" id="toc-obtaining-fair-decisions" class="nav-link" data-scroll-target="#obtaining-fair-decisions">Obtaining Fair Decisions</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Task 3: Respirator Allocation on MIMIC-IV</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">February 16, 2024</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+</header>
+
+<section id="inspecting-the-respiration-data-from-mimic-iv-dataset" class="level2">
+<h2 class="anchored" data-anchor-id="inspecting-the-respiration-data-from-mimic-iv-dataset">Inspecting the Respiration Data from MIMIC-IV dataset</h2>
+<p>We begin by loading and inspecting the data from MIMIC-IV:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>src <span class="ot">&lt;-</span> <span class="st">"miiv"</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">load_resp_data</span>(src))</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="fu">head</span>(data), <span class="at">caption =</span> <span class="st">"MIMIC-IV Respiration data."</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped small">
+<caption>MIMIC-IV Respiration data.</caption>
+<colgroup>
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 7%">
+<col style="width: 14%">
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 14%">
+<col style="width: 17%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: right;">stay_id</th>
+<th style="text-align: right;">o2prior</th>
+<th style="text-align: right;">sofa</th>
+<th style="text-align: right;">resp</th>
+<th style="text-align: right;">po2</th>
+<th style="text-align: right;">sex</th>
+<th style="text-align: right;">age</th>
+<th style="text-align: right;">o2post</th>
+<th style="text-align: right;">respirator</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">30000646</td>
+<td style="text-align: right;">96.16667</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">17.66667</td>
+<td style="text-align: right;">71</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">43</td>
+<td style="text-align: right;">96.50000</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">30001336</td>
+<td style="text-align: right;">97.00000</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">26.66667</td>
+<td style="text-align: right;">71</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">77</td>
+<td style="text-align: right;">96.00000</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">30001396</td>
+<td style="text-align: right;">87.66667</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">25.66667</td>
+<td style="text-align: right;">76</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">40</td>
+<td style="text-align: right;">80.66667</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">30001446</td>
+<td style="text-align: right;">99.33333</td>
+<td style="text-align: right;">11</td>
+<td style="text-align: right;">19.66667</td>
+<td style="text-align: right;">98</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">56</td>
+<td style="text-align: right;">99.00000</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">30001471</td>
+<td style="text-align: right;">94.00000</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">15.66667</td>
+<td style="text-align: right;">98</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">86</td>
+<td style="text-align: right;">92.16667</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">30001555</td>
+<td style="text-align: right;">94.33333</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">16.00000</td>
+<td style="text-align: right;">98</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">33</td>
+<td style="text-align: right;">96.66667</td>
+<td style="text-align: right;">0</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>We consider the cohort of all patients in the database admitted to the ICU. Patients who are mechanically ventilated immediately upon entering the ICU are subsequently removed. By focusing on the time window of the first 48 hours from admission to ICU, for each patient we determine the earliest time of mechanical ventilation, labeled <span class="math inline">\(t_{MV}\)</span>. Since mechanical ventilation is used to stabilize the respiratory profile of patients, for each patient we determine the average oxygen saturation in the three-hour period <span class="math inline">\([t_{MV}-3, t_{MV}]\)</span> prior to mechanical ventilation, labeled O<span class="math inline">\(_2\)</span>-pre. We also determine the oxygen saturation in the three-hour period following ventilation <span class="math inline">\([t_{MV}, t_{MV}+3]\)</span>, labeled O<span class="math inline">\(_2\)</span>-post. For controls (patient not ventilated at any point in the first 48 hours), we take the reference point as 12 hours after ICU admission, and calculate the values in three hours before and after this time. Patients’ respiratory stability, which represents the outcome of interest <span class="math inline">\(Y\)</span>, is measured as follows:</p>
+<span class="math display">\[\begin{align}
+    Y := \begin{cases}
+    0 \text{ if O}_2\text{-post} \geq 97, \\
+    -(\text{O}_2\text{-post}-97)^2 \text{ otherwise}.
+        \end{cases}
+\end{align}\]</span>
+<p>Values of oxygen saturation above 97 are considered stable, and the larger the distance from this stability value, the higher the risk for the patient. We also collect other important patient characteristics before intervention that are the key predictors of outcome, including the SOFA score, respiratory rate, and partial oxygen pressure (PaO<span class="math inline">\(_2\)</span>).</p>
+</section>
+<section id="constructing-the-sfm" class="level2">
+<h2 class="anchored" data-anchor-id="constructing-the-sfm">Constructing the SFM</h2>
+<p>We next construct the Standard Fairness Model, with also a decision <span class="math inline">\(D\)</span>:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># constructing the SFM</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="st">"sex"</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>Z <span class="ot">&lt;-</span> <span class="st">"age"</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>W <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"sofa"</span>, <span class="st">"po2"</span>, <span class="st">"o2prior"</span>)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>D <span class="ot">&lt;-</span> <span class="st">"respirator"</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>Y <span class="ot">&lt;-</span> <span class="st">"o2post"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="obtaining-fair-decisions" class="level2">
+<h2 class="anchored" data-anchor-id="obtaining-fair-decisions">Obtaining Fair Decisions</h2>
+<p>Fair Decisions can be obtained by passing the data, SFM, and any transform functions of the potential outcome <span class="math inline">\(Y_{d}\)</span> (<code>po_transform</code> argument) to the <code>fair_decisions()</code> function:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># fit the outcome control model</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>resp_oc <span class="ot">&lt;-</span> <span class="fu">fair_decisions</span>(</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  data, <span class="at">X =</span> X, <span class="at">Z =</span> Z, <span class="at">W =</span> W, <span class="at">Y =</span> Y, <span class="at">D =</span> D, <span class="at">x0 =</span> <span class="dv">0</span>, <span class="at">x1 =</span> <span class="dv">1</span>,</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">po_transform =</span> <span class="cf">function</span>(x) <span class="fu">ifelse</span>(x <span class="sc">&lt;</span> <span class="dv">97</span>, <span class="sc">-</span>(x<span class="dv">-97</span>)<span class="sc">^</span><span class="dv">2</span>, <span class="dv">0</span>), <span class="at">po_diff_sign =</span> <span class="dv">1</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Note that in <code>faircause 0.2.0</code> the columns of the input data to functions <code>fair_decisions()</code> and <code>fair_predictions()</code> need to be either <code>numeric</code> or <code>integer</code>. Use one-hot encoding wherever appropriate.</p>
+<p>When constructing fair decisions, <code>xgboost</code> is first used to estimate the conditional average treatment effect (CATE) of <span class="math inline">\(D\)</span> on <span class="math inline">\(Y\)</span>, labeled <span class="math inline">\(\Delta\)</span>, also referred to as benefit:</p>
+<span class="math display">\[\begin{align}
+\Delta = E[Y_{d_1} - Y_{d_0} \mid x, z, w].
+\end{align}\]</span>
+<p>In the above, <code>resp_oc</code> is S3-class object of type <code>fair_decision</code>. We can use the <code>autoplot()</code> generic to analyze various important aspects of the decision making process:</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># inspect the decomposition of D</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">autoplot</span>(resp_oc, <span class="at">type =</span> <span class="st">"decision"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="t3-mimic-respirators_files/figure-html/decompose-decision-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># inspect the decomposition of Delta</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">autoplot</span>(resp_oc, <span class="at">type =</span> <span class="st">"delta"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="t3-mimic-respirators_files/figure-html/decompose-delta-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># inspect benefit fairness</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">autoplot</span>(resp_oc, <span class="at">type =</span> <span class="st">"benefit_fairness"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="t3-mimic-respirators_files/figure-html/inspect-BF-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Further generics can be applied to <code>fair_decision</code> objects, such as <code>predict()</code>, which allows us to get estimates of the benefit <span class="math inline">\(\Delta\)</span> on some test data, and also find the optimal policy that satisfies benefit fairness:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># make predictions on test</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>test_data <span class="ot">&lt;-</span> data</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>fair_dec <span class="ot">&lt;-</span> <span class="fu">predict</span>(resp_oc, <span class="at">newdata =</span> test_data, <span class="at">budget =</span> <span class="fl">0.2</span>)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="co"># inspect the estimate benefit \Delta</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(fair_dec<span class="sc">$</span>delta, <span class="at">n =</span> 100L)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  [1] 8.017566e-01 3.724638e-01 5.191853e+01 0.000000e+00 6.212983e+00
+  [6] 4.203570e+00 1.008966e+01 1.269065e-01 0.000000e+00 3.286853e-01
+ [11] 1.251144e+00 5.440242e+00 2.653410e+00 0.000000e+00 3.287728e-01
+ [16] 6.071516e-01 4.757139e-01 0.000000e+00 1.529186e+00 2.971644e-01
+ [21] 8.352732e-01 3.049420e-01 0.000000e+00 1.316464e-01 9.029436e-01
+ [26] 2.170649e-02 2.222031e+00 6.038357e+00 1.162410e+00 9.170604e+00
+ [31] 1.005439e+01 1.413266e+01 3.665277e-01 0.000000e+00 0.000000e+00
+ [36] 3.129165e+00 4.450426e+00 1.166478e-01 0.000000e+00 2.907858e-01
+ [41] 7.480980e-04 0.000000e+00 1.167838e+00 1.495915e+00 0.000000e+00
+ [46] 0.000000e+00 0.000000e+00 8.373803e-01 1.013286e+01 0.000000e+00
+ [51] 6.888062e-06 9.781933e-01 5.623761e+00 4.914779e+00 1.095073e+01
+ [56] 2.950802e-05 1.074799e+01 2.525700e-01 4.529369e+00 2.937705e+01
+ [61] 5.786662e-04 0.000000e+00 0.000000e+00 4.605885e+00 4.780608e+00
+ [66] 6.791864e+00 1.930003e+01 0.000000e+00 5.194264e+00 2.610412e+00
+ [71] 0.000000e+00 0.000000e+00 4.935268e-03 1.658654e+00 8.200450e-01
+ [76] 9.657683e-02 6.761817e+00 1.841890e+00 2.859673e+00 0.000000e+00
+ [81] 9.752755e-02 0.000000e+00 4.548055e-01 1.569106e+00 1.290448e+00
+ [86] 2.937638e-01 1.533631e+01 5.638602e+00 1.379101e+01 0.000000e+00
+ [91] 0.000000e+00 0.000000e+00 6.255346e+00 9.792346e-02 0.000000e+00
+ [96] 1.116764e+00 9.761857e+00 2.054724e+00 3.707430e-01 4.080177e+00</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># inspect the allocated decisions</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(fair_dec<span class="sc">$</span>decision, <span class="at">n =</span> 100L)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  [1] 0 0 1 0 1 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 1 1 1 0 0 0 0 0
+ [38] 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 1 0 1 0 0 1 0 0 0 0 0 1 1 0 0 0 0 0 0 0
+ [75] 0 0 1 0 0 0 0 0 0 0 0 0 1 0 1 0 0 0 1 0 0 0 1 0 0 0</code></pre>
+</div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
